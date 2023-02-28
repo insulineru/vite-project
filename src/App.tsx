@@ -43,9 +43,10 @@ export default function App() {
       const address = await provider.getSigner().getAddress();
       // const ens = await provider.lookupAddress(address);
       const providerrr = new JsonRpcProvider('https://rpc.ankr.com/eth')
-      const ens = await providerrr.lookupAddress(address);
+      // const ens = await providerrr.lookupAddress(address);
+      const detect = await providerrr.resolveName(address)
 
-      console.log(address, ens);
+      console.log(address, detect);
     };
     if (provider) {
       console.log(provider);
