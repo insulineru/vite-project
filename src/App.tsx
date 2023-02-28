@@ -1,63 +1,29 @@
-import * as React from 'react';
-import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers';
-import type { ExternalProvider } from '@ethersproject/providers';
+import { getDefaultProvider } from 'ethers';
+import { useEffect } from 'react';
+import { createClient, useAccount, useConnect, useEnsName, configureChains, mainnet, WagmiConfig } from 'wagmi';
+import { InjectedConnector } from 'wagmi/connectors/injected';
+import { publicProvider } from 'wagmi/providers/public'
+
+
+
 
 export default function App() {
-  const [provider, setProvider] = React.useState<Web3Provider>();
+  const { address, isConnected } = useAccount()
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  })
 
-  React.useEffect(() => {
-    // @ts-ignore
-    const ethereum: any = window.ethereum;
+  const { data } = useEnsName({ address })
+  useEffect(() => {
+    connect()
+  }, [])
 
-    const findedProvider = () => {
-      if (ethereum.providers?.length) {
-        const provider = ethereum?.providers.find(
-          (prov: any) => prov?.isMetaMask
-        );
-        if (!provider) {
-          throw new Error('[WalletProvider] No provider found');
-        }
-
-        return provider;
-      }
-
-      return ethereum;
-    };
-
-    const walletProvider = findedProvider();
-
-    const provider = new Web3Provider(
-      walletProvider as ExternalProvider,
-      'any'
-    );
-
-    setProvider(provider);
-
-    provider.send('eth_requestAccounts', []);
-  }, []);
-
-  React.useEffect(() => {
-    const fetch = async () => {
-      if (!provider) return;
-
-      const address = await provider.getSigner().getAddress();
-      // const ens = await provider.lookupAddress(address);
-      const providerrr = new JsonRpcProvider('https://rpc.ankr.com/eth')
-      // const ens = await providerrr.lookupAddress(address);
-      const detect = await providerrr.resolveName(address)
-
-      console.log(address, detect);
-    };
-    if (provider) {
-      console.log(provider);
-      fetch();
-    }
-  }, [provider]);
 
   return (
-    <div>
-      <h1>Hello StackBlitz!</h1>
+      <div>
+        <h1>Hello StackBlitz!</h1>
       <p>Start editing to see some magic happen :)</p>
-    </div>
+      <p>{data}</p>
+      </div>
   );
 }
